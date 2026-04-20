@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FBTI人格测试 - 娱乐版MBTI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* 开始页面 */
+        .start-screen {
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .start-screen h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            font-weight: normal;
+        }
+
+        .description {
+            color: #888;
+            font-size: 0.95em;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        /* 答题页面 */
+        .quiz-screen {
+            display: none;
+            padding: 40px;
+        }
+
+        .progress-container {
+            margin-bottom: 30px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.2s ease;
+        }
+
+        .question-number {
+            text-align: right;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .question {
+            margin-bottom: 30px;
+        }
+
+        .question h3 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+        }
+
+        .option.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        /* 结果页面 */
+        .result-screen {
+            display: none;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .result-type {
+            font-size: 3em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-name {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .result-character {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .result-comment {
+            font-size: 1.1em;
+            color: #888;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+
+        .result-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 20px auto;
+            border: 5px solid #f0f0f0;
+        }
+
+        .result-description {
+            color: #666;
+            line-height: 1.6;
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+
+        .restart-btn {
+            margin-top: 20px;
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+
+            .start-screen {
+                padding: 40px 20px;
+            }
+
+            .start-screen h1 {
+                font-size: 2em;
+            }
+
+            .subtitle {
+                font-size: 1em;
+            }
+
+            .description {
+                font-size: 0.85em;
+            }
+
+            .quiz-screen,
+            .result-screen {
+                padding: 20px;
+            }
+
+            .result-image {
+                width: 150px;
+                height: 150px;
+            }
+
+            .result-type {
+                font-size: 2.5em;
+            }
+
+            .result-name {
+                font-size: 1.3em;
+            }
+
+            .result-character, .result-comment {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 开始页面 -->
+        <div id="startScreen" class="start-screen">
+            <h1>FBTI人格测试</h1>
+            <div class="subtitle">Explore your femboy traits and style tendencies.</div>
+            <div class="description">20 casual questions — no labels, no judgments, just you.</div>
+            <button onclick="startQuiz()" class="btn">开始测试</button>
+        </div>
+
+        <!-- 答题页面 -->
+        <div id="quizScreen" class="quiz-screen">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="question-number" id="questionNumber">第 1 题 / 20 题</div>
+            </div>
+
+            <div id="currentQuestion" class="question"></div>
+
+            <div class="navigation">
+                <button onclick="prevQuestion()" id="prevBtn" class="btn" style="display:none;">上一题</button>
+                <button onclick="nextQuestion()" id="nextBtn" class="btn">下一题</button>
+            </div>
+        </div>
+
+        <!-- 结果页面 -->
+        <div id="resultScreen" class="result-screen">
+            <div id="resultContent"></div>
+            <button onclick="restartQuiz()" class="btn restart-btn">重新测试</button>
+        </div>
+    </div>
+
+    <script>
+        // 测试题目数据 - 包含E/I、S/N、T/F、J/P四个维度
+        const questions = [
+            { 
+                question: "宿舍聚餐的时候，你通常是？",
+                dimension: "EI",
+                options: ["主动组织，张罗一切", "等别人叫才去，安静吃饭"]
+            },
+            { 
+                question: "期末复习时，你更倾向于？",
+                dimension: "SN",
+                options: ["刷题做笔记，掌握每个知识点", "抓重点猜题，看能不能押中"]
+            },
+            { 
+                question: "朋友找你倾诉感情问题，你会？",
+                dimension: "TF",
+                options: ["理性分析，帮TA理清思路", "安慰鼓励，让TA心情好起来"]
+            },
+            { 
+                question: "制定假期计划，你更喜欢？",
+                dimension: "JP",
+                options: ["详细规划每天行程，精确到小时", "大概定个方向，到时再说"]
+            },
+            { 
+                question: "参加社团活动，你更愿意？",
+                dimension: "EI",
+                options: ["积极参与，认识新朋友", "偶尔参加，和熟人一起"]
+            },
+            { 
+                question: "学建筑制图时，你觉得？",
+                dimension: "SN",
+                options: ["严格按照规范画图最重要", "创新设计比规范更重要"]
+            },
+            { 
+                question: "和室友发生矛盾，你会？",
+                dimension: "TF",
+                options: ["摆事实讲道理，找出问题所在", "先哄一下，和谐最重要"]
+            },
+            { 
+                question: "考试复习，你通常是？",
+                dimension: "JP",
+                options: ["早早开始，按计划稳步进行", "考前一周疯狂突击"]
+            },
+            { 
+                question: "周末约朋友出去玩，你？",
+                dimension: "EI",
+                options: ["主动发消息，拉大家一起", "等人邀请，不太主动"]
+            },
+            { 
+                question: "参观藏族寺庙，你更感兴趣的是？",
+                dimension: "SN",
+                options: ["了解建筑结构和历史背景", "感受神秘氛围和宗教文化"]
+            },
+            { 
+                question: "做课程设计时，你更注重？",
+                dimension: "TF",
+                options: ["功能实用，数据准确", "美观舒适，体验友好"]
+            },
+            { 
+                question: "面对突发状况，你？",
+                dimension: "JP",
+                options: ["快速调整原有计划", "按照既定方案继续"]
+            },
+            { 
+                question: "在群里聊天，你通常是？",
+                dimension: "EI",
+                options: ["活跃分子，经常冒泡", "潜水观察，偶尔回复"]
+            },
+            { 
+                question: "看动漫时，你更喜欢？",
+                dimension: "SN",
+                options: ["剧情紧凑，逻辑严密的", "画面唯美，意境深远的"]
+            },
+            { 
+                question: "同学求助作业，你会？",
+                dimension: "TF",
+                options: ["直接指出错误，严格要求", "耐心讲解，鼓励为主"]
+            },
+            { 
+                question: "实习安排，你更希望？",
+                dimension: "JP",
+                options: ["提前确定所有日程安排", "灵活安排，随时调整"]
+            },
+            { 
+                question: "小组作业，你更愿意？",
+                dimension: "EI",
+                options: ["担任组长，统筹协调", "配合他人，专注执行"]
+            },
+            { 
+                question: "旅行时，你更关注？",
+                dimension: "SN",
+                options: ["打卡热门景点和美食", "探索当地文化和故事"]
+            },
+            { 
+                question: "面对老师批评，你？",
+                dimension: "TF",
+                options: ["冷静接受，分析改进", "情绪波动，但会反思"]
+            },
+            { 
+                question: "项目截止日期临近，你？",
+                dimension: "JP",
+                options: ["熬夜赶工，力求完美", "按时提交，后续完善"]
+            }
+        ];
+
+        // 人格类型数据
+        const mbtiTypes = {
+            istj: {
+                name: "物流师型",
+                character: "行秋（原神）",
+                comment: "璃月卷王，写小说比练武还认真",
+                description: "你稳重靠谱，做事认真有条理，有自己的原则和底线，看似安静内敛，实则非常可靠，重视承诺与秩序，不管做什么都能做到尽善尽美，是最让人放心的伙伴。"
+            },
+            isfj: {
+                name: "守卫者型",
+                character: "萤丸（刀剑乱舞）",
+                comment: "本丸小天使，默默把所有人照顾好",
+                description: "你温柔细心，习惯默默付出，总是把身边的人放在第一位，内心柔软又有责任感，擅长照顾别人的情绪，从来不会主动添麻烦，是大家都想依赖的小天使。"
+            },
+            infj: {
+                name: "提倡者型",
+                character: "潮田渚（暗杀教室）",
+                comment: "看起来是小奶狗，其实是暗杀天花板",
+                description: "你温柔却坚定，洞察力强到可怕，擅长隐藏自己的锋芒，看似软萌无害，内心却有着极强的信念，关键时刻能爆发出惊人的力量，永远能给人惊喜。"
+            },
+            intj: {
+                name: "建筑师型",
+                character: "菲利克斯・阿盖尔（Re: 从零）",
+                comment: "猫耳只是伪装，战略布局才是本体",
+                description: "你是冷静理智的战略家，表面温和软萌，内心却藏着极强的规划能力与主见，从不轻易被外界干扰，对自己认定的人会付出绝对的忠诚，永远能在关键时刻拿出最优解。"
+            },
+            istp: {
+                name: "鉴赏家型",
+                character: "铃屋什造（东京喰种）",
+                comment: "战斗疯子，打架全靠临场发挥",
+                description: "你冷静又灵活，应变能力超强，不按常理出牌，看似随性散漫，动手能力却强到离谱，关键时刻永远能拿出最有效的解决方案，是天生的行动派。"
+            },
+            isfp: {
+                name: "探险家型",
+                character: "米沙（崩坏：星穹铁道）",
+                comment: "贝洛伯格小正太，安静但有自己的节奏",
+                description: "你温柔安静，热爱自由，有自己的审美和节奏，不喜欢被束缚，内心纯粹又简单，虽然话不多，但永远用行动表达善意，是低调又温暖的存在。"
+            },
+            infp: {
+                name: "调停者型",
+                character: "菲米尼（原神）",
+                comment: "社恐潜水员，海底才是他的精神老家",
+                description: "你内心细腻敏感，有着自己独有的精神小世界，有点内向社恐，却对自己热爱的事物充满热情，情感深刻又纯粹，不擅长社交，但永远真诚对待身边的人。"
+            },
+            intp: {
+                name: "逻辑学家型",
+                character: "提纳里（原神）",
+                comment: "学术卷王，巡林界的逻辑怪",
+                description: "你理性又聪明，天生爱钻研事物的本质，观察力敏锐到离谱，做事严谨有条理，偶尔有点小毒舌，但对在意的人会默默付出温柔，是靠谱又聪明的伙伴。"
+            },
+            estp: {
+                name: "企业家型",
+                character: "阿斯托尔福（Fate）",
+                comment: "女装大佬，行动永远比脑子快",
+                description: "你活泼大胆，乐观开朗，擅长临场应变，人缘好到爆炸，永远活力满满，行动永远比想法快，不管遇到什么事都能笑着面对，是大家的开心果。"
+            },
+            esfp: {
+                name: "表演者型",
+                character: "布里吉特（罪恶装备）",
+                comment: "可爱小天使，走到哪都是气氛组",
+                description: "你热情外向，享受当下，擅长带动气氛，真实不做作，永远活得自在又快乐，不管走到哪里都能成为焦点，能轻易把所有人的情绪都调动起来。"
+            },
+            enfp: {
+                name: "追梦人型",
+                character: "户冢彩加（我的青春恋爱物语果然有问题）",
+                comment: "春物里唯一的天使，谁看了不喊老婆",
+                description: "你内心纯粹阳光，温柔又治愈，人缘好到爆炸，能轻易温暖身边的人，没有一点坏心思，像小太阳一样，不管是谁和你相处都会觉得舒服又治愈。"
+            },
+            entp: {
+                name: "辩论家型",
+                character: "夏尔・凡多姆海恩（黑执事）",
+                comment: "腹黑少爷，玩计谋没人玩得过他",
+                description: "你机智过人，擅长布局和应变，反应快到离谱，好胜心极强，表面优雅得体，内心却藏着腹黑的一面，永远能把对手耍得团团转，是天生的谋略家。"
+            },
+            estj: {
+                name: "总经理型",
+                character: "三叶惣助（地缚少年花子君）",
+                comment: "傲娇小幽灵，嘴硬心软的典型",
+                description: "你性格直接果断，做事不拖泥带水，重视规则和效率，看似有点傲娇嘴硬，其实内心非常在意身边的人，从来不会真的伤害别人，是外冷内热的典型。"
+            },
+            esfj: {
+                name: "执政官型",
+                character: "水月（明日方舟）",
+                comment: "温柔阿戈尔，把队友的情绪都照顾到",
+                description: "你是温柔体贴的照顾者，擅长感知他人的情绪，总是默默把身边的人照顾得妥帖周到，重视团队的和谐，不管什么时候都能给人安全感，是大家都信赖的暖心伙伴。"
+            },
+            enfj: {
+                name: "教育家型",
+                character: "温迪（原神）",
+                comment: "摸鱼风神，最懂人心的自由诗人",
+                description: "你温柔又通透，擅长感知他人的情绪，总能轻易拉近和别人的距离，看似随性摸鱼，实则比谁都懂人心，能默默治愈身边的所有人，是大家的精神支柱。"
+            },
+            entj: {
+                name: "指挥官型",
+                character: "雷姆・托吾（骑士 & 魔法）",
+                comment: "转生就是为了搞机甲，目标明确到离谱",
+                description: "天生的领导者，目标感拉满，执行力超强，思路永远清晰，喜欢掌控全局，为了自己的热爱能拼尽全力，不管做什么都能做到极致，是天生的赢家。"
+            }
+        };
+
+        // 全局变量
+        let currentScore = { EI: 0, SN: 0, TF: 0, JP: 0 };
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+
+        // 初始化测试
+        function startQuiz() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizScreen').style.display = 'block';
+            loadQuestion();
+        }
+
+        // 加载题目
+        function loadQuestion() {
+            const questionData = questions[currentQuestionIndex];
+            const questionElement = document.getElementById('currentQuestion');
+            
+            let optionsHtml = '';
+            questionData.options.forEach((option, index) => {
+                optionsHtml += `
+                    <div class="option" onclick="selectOption(${index})" data-index="${index}">
+                        ${option}
+                    </div>
+                `;
+            });
+
+            questionElement.innerHTML = `
+                <h3>${questionData.question}</h3>
+                <div class="options">${optionsHtml}</div>
+            `;
+
+            // 更新进度条
+            updateProgress();
+
+            // 显示/隐藏导航按钮
+            document.getElementById('prevBtn').style.display = currentQuestionIndex > 0 ? 'inline-block' : 'none';
+            
+            // 最后一题显示"提交结果"
+            const nextBtn = document.getElementById('nextBtn');
+            if (currentQuestionIndex === questions.length - 1) {
+                nextBtn.textContent = '提交结果';
+            } else {
+                nextBtn.textContent = '下一题';
+            }
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+            document.getElementById('questionNumber').textContent = `第 ${currentQuestionIndex + 1} 题 / ${questions.length} 题`;
+        }
+
+        // 选择选项
+        function selectOption(optionIndex) {
+            // 移除其他选项的选择状态
+            document.querySelectorAll('.option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // 添加当前选项的选择状态
+            event.target.classList.add('selected');
+            
+            // 记录用户答案
+            userAnswers[currentQuestionIndex] = optionIndex;
+        }
+
+        // 下一题
+        function nextQuestion() {
+            // 检查是否选择了答案
+            if (userAnswers[currentQuestionIndex] === undefined) {
+                alert('请选择一个选项！');
+                return;
+            }
+
+            // 计算当前题目的分数
+            calculateScore(currentQuestionIndex);
+
+            if (currentQuestionIndex < questions.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                showResult();
+            }
+        }
+
+        // 上一题
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                loadQuestion();
+                
+                // 重新加载答案选择状态
+                setTimeout(() => {
+                    if (userAnswers[currentQuestionIndex] !== undefined) {
+                        const selectedOption = document.querySelector(`.option[data-index="${userAnswers[currentQuestionIndex]}"]`);
+                        if (selectedOption) {
+                            selectedOption.classList.add('selected');
+                        }
+                    }
+                }, 100);
+            }
+        }
+
+        // 计算分数
+        function calculateScore(questionIndex) {
+            const question = questions[questionIndex];
+            const answer = userAnswers[questionIndex];
+            
+            // 每个维度的计分规则：选项0偏向第一个字母，选项1偏向第二个字母
+            switch (question.dimension) {
+                case 'EI':
+                    if (answer === 0) currentScore.EI++; // 偏向E
+                    else currentScore.EI--; // 偏向I
+                    break;
+                case 'SN':
+                    if (answer === 0) currentScore.SN++; // 偏向S
+                    else currentScore.SN--; // 偏向N
+                    break;
+                case 'TF':
+                    if (answer === 0) currentScore.TF++; // 偏向T
+                    else currentScore.TF--; // 偏向F
+                    break;
+                case 'JP':
+                    if (answer === 0) currentScore.JP++; // 偏向J
+                    else currentScore.JP--; // 偏向P
+                    break;
+            }
+        }
+
+        // 显示结果
+        function showResult() {
+            // 计算最终人格类型
+            const type = 
+                (currentScore.EI >= 0 ? 'E' : 'I') +
+                (currentScore.SN >= 0 ? 'S' : 'N') +
+                (currentScore.TF >= 0 ? 'T' : 'F') +
+                (currentScore.JP >= 0 ? 'J' : 'P');
+
+            const typeLower = type.toLowerCase();
+            const typeInfo = mbtiTypes[typeLower];
+
+            const resultHtml = `
+                <div class="result-type">${type}</div>
+                <div class="result-name">${typeInfo.name}</div>
+                <div class="result-character">${typeInfo.character}</div>
+                <div class="result-comment">${typeInfo.comment}</div>
+                <img src="images/${typeLower}.jpg" alt="${type}头像" class="result-image" onerror="this.style.display='none';">
+                <div class="result-description">${typeInfo.description}</div>
+                <p>感谢您的参与！您可以分享这个有趣的测试结果。</p>
+            `;
+
+            document.getElementById('resultContent').innerHTML = resultHtml;
+            document.getElementById('quizScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+        }
+
+        // 重新开始测试
+        function restartQuiz() {
+            // 重置所有变量
+            currentScore = { EI: 0, SN: 0, TF: 0, JP: 0 };
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            
+            // 隐藏结果页面，显示开始页面
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
